@@ -1,38 +1,50 @@
 package org.hammerlab.strings
 
 trait TruncatedToString {
-  override def toString: String = truncatedString(Int.MaxValue)
+  override def toString: String = toString(Int.MaxValue)
 
-  /** String representation, truncated to maxLength characters. */
-  def truncatedString(maxLength: Int = 500): String =
-    TruncatedToString(stringPieces, maxLength)
-
-  /**
-   * Iterator over string representations of data comprising this object.
-   */
-  def stringPieces: Iterator[String]
-}
-
-object TruncatedToString {
   /**
    * Like Scala's List.mkString method, but supports truncation.
    *
    * Return the concatenation of an iterator over strings, separated by separator, truncated to at most maxLength
    * characters. If truncation occurs, the string is terminated with ellipses.
    */
-  def apply(pieces: Iterator[String],
-            maxLength: Int,
-            separator: String = ",",
-            ellipses: String = " [...]"): String = {
+  def toString(maxLength: Int,
+               separator: String = ",",
+               ellipses: String = "…"): String = {
+
     val builder = StringBuilder.newBuilder
     var remaining: Int = maxLength
-    while (pieces.hasNext && remaining > ellipses.length) {
-      val string = pieces.next()
-      builder.append(string)
-      if (pieces.hasNext) builder.append(separator)
-      remaining -= string.length + separator.length
+
+    val separatedPieces =
+      stringPieces
+        .flatMap(piece ⇒ Iterator(separator, piece))
+        .drop(1)
+        .buffered
+
+    while (separatedPieces.hasNext && remaining >= 0) {
+      val piece = separatedPieces.head.toString
+      val len = piece.length
+
+      if (len <= remaining) {
+        builder.append(piece)
+        separatedPieces.next()
+        remaining -= len
+      } else {
+        remaining = -1
+      }
     }
-    if (pieces.hasNext) builder.append(ellipses)
-    builder.result
+
+    val result = builder.result
+
+    if (separatedPieces.hasNext)
+      result.substring(0, maxLength - ellipses.length) + ellipses
+    else
+      result
   }
+
+  /**
+   * Iterator over string representations of data comprising this object.
+   */
+  def stringPieces: Iterator[String]
 }
