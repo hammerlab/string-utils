@@ -1,24 +1,37 @@
-package org.hammerlab.pageant.utils
+package org.hammerlab.csv
 
-import ProductToCSVRow._
+import org.hammerlab.csv.ProductToCSVRow._
 
-class ProductsToCSV[T <: Product](products: BufferedIterator[T]) {
+import scala.reflect.ClassTag
+
+class ProductsToCSV[T <: Product: ClassTag](products: Iterator[T]) {
   def toCSV(includeHeaderLine: Boolean = true): Iterator[String] =
     if (includeHeaderLine) {
-      val clazz =
-        if (products.hasNext)
-          products.head.getClass
-        else
-          classOf[T]
+      val (clazz, firstOpt) =
+        if (products.hasNext) {
+          val first = products.next()
+          (first.getClass, Some(first))
+        } else {
+          val ctag = implicitly[reflect.ClassTag[T]]
+          (ctag.runtimeClass.asInstanceOf[Class[T]], None)
+        }
 
-      val headerLine = clazz.getDeclaredFields.map(_.getName).mkString(",")
+      val headerLine =
+        clazz
+          .getDeclaredFields
+          .map(_.getName)
+          .filterNot(_ == "$outer")  // Field added on case classes nested inside another class.
+          .mkString(",")
 
-      Iterator(headerLine) ++ toCSV(includeHeaderLine = false)
+      Iterator(headerLine) ++
+        firstOpt.map(_.toCSV).iterator ++
+        toCSV(includeHeaderLine = false)
     } else
       products.map(_.toCSV)
 }
 
 object ProductsToCSV {
-  implicit def apply[T <: Product](products: Iterable[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator.buffered)
-  implicit def apply[T <: Product](products: Array[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator.buffered)
+  implicit def apply[T <: Product: ClassTag](products: Iterator[T]): ProductsToCSV[T] = new ProductsToCSV(products)
+  implicit def apply[T <: Product: ClassTag](products: Iterable[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator)
+  implicit def apply[T <: Product: ClassTag](products: Array[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator)
 }
