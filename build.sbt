@@ -1,2 +1,2 @@
-name := "strings"
-version := "1.0.0-SNAPSHOT"
+name := "string-utils"
+version := "1.0.0"
