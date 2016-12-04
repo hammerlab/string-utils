@@ -9,7 +9,9 @@ class ProductsToCSVTest
     with Matchers {
 
   // cf. http://stackoverflow.com/questions/30271823/converting-a-case-class-to-csv-in-scala
-  case class Person(name: String, age: Int, address: Option[String])
+  case class Person(name: String, age: Int, address: Option[String]) {
+    val foo: Int = age * age
+  }
 
   test("people") {
     val ppl =

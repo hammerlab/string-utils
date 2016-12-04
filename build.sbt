@@ -1,2 +1,4 @@
 name := "string-utils"
-version := "1.0.0"
+version := "1.1.0"
+
+libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
