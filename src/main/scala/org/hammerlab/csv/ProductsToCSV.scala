@@ -18,7 +18,7 @@ class ProductsToCSV[T <: Product: TypeTag](products: Iterator[T]) {
 }
 
 object ProductsToCSV {
-  implicit def apply[T <: Product: TypeTag](products: Iterator[T]): ProductsToCSV[T] = new ProductsToCSV(products)
-  implicit def apply[T <: Product: TypeTag](products: Iterable[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator)
-  implicit def apply[T <: Product: TypeTag](products: Array[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator)
+  implicit def toCSV[T <: Product: TypeTag](products: Iterator[T]): ProductsToCSV[T] = new ProductsToCSV(products)
+  implicit def toCSV[T <: Product: TypeTag](products: Iterable[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator)
+  implicit def toCSV[T <: Product: TypeTag](products: Array[T]): ProductsToCSV[T] = new ProductsToCSV(products.iterator)
 }
