@@ -6,7 +6,7 @@
 
 String/CSV utilities.
 
-#### [`org.hammerlab.strings.TruncatedToString`](src/main/scala/org/hammerlab/strings/TrucatedToString)
+#### [`org.hammerlab.strings.TruncatedToString`](src/main/scala/org/hammerlab/strings/TruncatedToString.scala)
 Interface for classes that can render themselves as an `Iterator[String]`, exposing a `.toString()` that will be truncated to a maximum number of characters.
 
 #### [`org.hammerlab.csv`](src/main/scala/org/hammerlab/csv):
